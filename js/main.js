@@ -1,5 +1,5 @@
 //-- Array de imágenes --//
-
+ 
 imagenesViajes = [
     {
         id: 1,
@@ -15,35 +15,35 @@ imagenesViajes = [
         alt: 'foto de un muelle en el mar',
         tags: ['playa', 'cielo', 'mar', 'muelle']
     },
-        {
+    {
         id: 3,
         src: '/assets/images/viajes/viajes-3.jpg',
         title: 'Cartel con destinos',
         alt: 'foto de un poste con un carteles con nombres de ciudades',
         tags: ['cielo', 'ciudad']
     },
-        {
+    {
         id: 4,
         src: '/assets/images/viajes/viajes-4.jpg',
         title: 'Plaza España en Sevilla',
         alt: 'foto de la Plaza españa con una porcion del puente',
         tags: ['plaza', 'monumento', 'ciudad']
     },
-        {
+    {
         id: 5,
         src: '/assets/images/viajes/viajes-5.jpg',
         title: 'Plaza España en Sevilla 2',
         alt: 'foto de la Plaza españa con una porcion del puente',
         tags: ['puente', 'monumento', 'farola', 'plaza', 'ciudad']
     },
-        {
+    {
         id: 6,
         src: '/assets/images/viajes/viajes-6.jpg',
         title: 'Camino al tunel por la orilla',
         alt: 'foto de un camino costero que atraviesa un tunel',
         tags: ['playa', 'tunel', 'mar']
     },
-        {
+    {
         id: 7,
         src: '/assets/images/viajes/viajes-7.jpg',
         title: 'Un castillo en las alturas',
@@ -51,11 +51,13 @@ imagenesViajes = [
         tags: ['castillo', 'casas', 'montaña', 'campo']
     },
 ]
-
-// Función para buscar etiquetas
+ 
+// Obtener referencias a los contenedores del HTML
 const contenedorFiltros = document.getElementById('controles-filtro');
+const textoFiltro = document.getElementById('texto-filtro');
 const contenedorGaleria = document.getElementById('galeria-contenedor');
-
+ 
+// Recolectar todos los tags únicos de las fotos
 const miListaDeTags = ['todos'];
 imagenesViajes.forEach(foto => {
     foto.tags.forEach(tag => {
@@ -64,57 +66,63 @@ imagenesViajes.forEach(foto => {
         }
     });
 });
-
-
-// Función para crear los botones
-function crearBotones() {
+ 
+// Función para crear los botones de filtro
+const crearBotones = () => {
     miListaDeTags.forEach(tag => {
         const boton = document.createElement('button');
         boton.textContent = tag.toUpperCase();
-        boton.classList.add('btn-tag');
+        boton.className = 'btn-tag';
         boton.dataset.categoria = tag;
         contenedorFiltros.appendChild(boton);
     });
 }
-
-// Función para fabricar las fotos inicialmente
-function renderizarFotos() {
+ 
+// Función para crear la galería de fotos
+const crearGaleria = () => {
     contenedorGaleria.innerHTML = '';
 
     imagenesViajes.forEach(foto => {
         const tarjeta = document.createElement('article');
-        tarjeta.classList.add('tarjeta-foto');
+        tarjeta.className = 'tarjeta-foto';
         
+        // Guardar la foto en memoria para acceso rápido
+        tarjeta.foto = foto;
 
-        tarjeta.dataset.tags = foto.tags.join(',');
+        const img = document.createElement('img');
+        img.src = foto.src;
+        img.alt = foto.alt;
 
-        tarjeta.innerHTML = `
-            <img src="${foto.src}" alt="${foto.alt}">
-            <h3>${foto.title}</h3>
-        `;
+        const h3 = document.createElement('h3');
+        h3.textContent = foto.title;
+
+        tarjeta.appendChild(img);
+        tarjeta.appendChild(h3);
+
         contenedorGaleria.appendChild(tarjeta);
     });
 }
-
+ 
+// Event listener para los botones de filtro
 contenedorFiltros.addEventListener('click', (evento) => {
     const elementoClickeado = evento.target;
-
+ 
     if (elementoClickeado.tagName === 'BUTTON') {
         const filtroSeleccionado = elementoClickeado.dataset.categoria;
         console.log("Filtro activo:", filtroSeleccionado);
         
-        ejecutarFiltroVisual(filtroSeleccionado);
+        aplicarFiltro(filtroSeleccionado);
     }
 });
-
-// Función que decide qué fotos se ven y cuáles no
-function ejecutarFiltroVisual(loQueBusco) {
+ 
+// Función que muestra las fotos según el filtro
+const aplicarFiltro = (tagSeleccionado) => {
     const todasLasTarjetas = document.querySelectorAll('.tarjeta-foto');
     let contador = 0;
 
     todasLasTarjetas.forEach(tarjeta => {
-        const tagsDeEstaFoto = tarjeta.dataset.tags.split(',');
-        const coincide = loQueBusco === 'todos' || tagsDeEstaFoto.includes(loQueBusco);
+        const tagsDeEstaFoto = tarjeta.foto.tags;
+        const coincide = tagSeleccionado === 'todos' || tagsDeEstaFoto.includes(tagSeleccionado);
 
         if (coincide) {
             tarjeta.style.display = 'block';
@@ -124,18 +132,18 @@ function ejecutarFiltroVisual(loQueBusco) {
         }
     });
 
- 
-    actualizarMensaje(contador, loQueBusco);
+    actualizarMensaje(contador, tagSeleccionado);
 }
-
-const textoFiltro = document.getElementById('texto-filtro');
-function actualizarMensaje (cantidad, etiqueta) {
+ 
+// Función para actualizar el mensaje según el filtro activo
+const actualizarMensaje = (cantidad, etiqueta) => {
     if (etiqueta === 'todos'){
-        textoFiltro.textContent =`Estas son todas las fotos.`;
+        textoFiltro.textContent = `Estas son todas las fotos.`;
     } else {
         textoFiltro.textContent = `Se han encontrado ${cantidad} fotos de ${etiqueta}`;
     }
 }
-
+ 
+// Inicializar la página
 crearBotones();
-renderizarFotos();
+crearGaleria();
